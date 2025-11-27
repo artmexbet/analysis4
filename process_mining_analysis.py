@@ -8,7 +8,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import warnings
-warnings.filterwarnings('ignore')
+# Подавляем только предупреждения о deprecated функциях matplotlib
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='matplotlib')
 
 
 def load_sample_data():
@@ -180,7 +181,7 @@ def analyze_graph(G, df, transitions):
                 print(f"  Цикл {i}: {cycle_str}")
         else:
             print("Циклов не обнаружено")
-    except Exception as e:
+    except nx.NetworkXError as e:
         print(f"Ошибка при поиске циклов: {e}")
     
     # 3.3 Поиск отклонений (нестандартных путей)
@@ -321,9 +322,14 @@ def suggest_optimizations(df, trace_counts, duration_df):
     """)
 
 
-def visualize_process(G, transitions):
+def visualize_process(G, transitions, show_plot=False):
     """
     Визуализация графа процесса
+    
+    Args:
+        G: граф процесса
+        transitions: словарь переходов
+        show_plot: показать график интерактивно (по умолчанию False)
     """
     print("\n" + "=" * 60)
     print("ВИЗУАЛИЗАЦИЯ ГРАФА")
@@ -331,15 +337,8 @@ def visualize_process(G, transitions):
     
     plt.figure(figsize=(14, 10))
     
-    # Позиционирование узлов
-    pos = {
-        'Получение заявки': (0, 2),
-        'Классификация': (1, 2),
-        'Эскалация': (2, 3),
-        'Обработка': (2, 2),
-        'Возврат на доработку': (3, 1),
-        'Закрытие': (4, 2)
-    }
+    # Используем автоматический layout для гибкости
+    pos = nx.spring_layout(G, k=2, iterations=50, seed=42)
     
     # Рисуем узлы
     node_colors = ['lightgreen' if node == 'Получение заявки' else 
@@ -372,7 +371,11 @@ def visualize_process(G, transitions):
     plt.axis('off')
     plt.tight_layout()
     plt.savefig('process_graph.png', dpi=150, bbox_inches='tight')
-    plt.close()
+    
+    if show_plot:
+        plt.show()
+    else:
+        plt.close()
     
     print("Граф сохранён в файл: process_graph.png")
 
