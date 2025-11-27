@@ -1,0 +1,10 @@
+# Generated files
+process_graph.png
+*.pyc
+__pycache__/
+.ipynb_checkpoints/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
